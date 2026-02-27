@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import AgentSyncTrail from './AgentSyncTrail'
+import SnakeSyncLoader from './SnakeSyncLoader'
 
 const ICON_SRC =
   'http://localhost:3845/assets/db9efd30507e9118d265cbb322d8806c99c70c40.svg'
 
+// Figma: State 1 = default (idle), State 2 = sync (syncing), State 3 = complete (check + shimmer)
 type BarState = 'idle' | 'syncing' | 'complete'
 
 function CheckComplete() {
@@ -14,6 +15,7 @@ function CheckComplete() {
         position: 'relative',
         width: 16,
         height: 16,
+        zIndex: 0,
       }}
     >
       <div
@@ -46,11 +48,20 @@ function CheckComplete() {
 
 export function CalendarBar() {
   const [state, setState] = useState<BarState>('idle')
-  const [, setBounceCount] = useState(0)
+
+  // State 3 (complete): after 5s return to State 1 (default)
+  useEffect(() => {
+    if (state !== 'complete') return
+    const timer = window.setTimeout(() => {
+      setState('idle')
+    }, 5000)
+    return () => window.clearTimeout(timer)
+  }, [state])
 
   const outerBorder = state === 'syncing' ? '#2e2e2e' : '#3f3f3f'
 
-  const ctaWidth = state === 'idle' ? 48 : state === 'syncing' ? 56 : 21
+  // Match Figma-ish widths: compact idle label, full snake track in syncing, small checkbox in complete
+  const ctaWidth = state === 'idle' ? 48 : state === 'syncing' ? 78 : 21
   const ctaHeight = state === 'idle' ? 21 : 21
 
   return (
@@ -98,60 +109,55 @@ export function CalendarBar() {
         </p>
       </div>
 
-      <motion.button
-        type="button"
-        onClick={() => {
-          if (state === 'idle') {
-            setBounceCount(0)
-            setState('syncing')
-          } else if (state === 'complete') {
-            setBounceCount(0)
-            setState('idle')
-          }
-        }}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid #2e2e2e',
-          backgroundColor: 'transparent',
-          padding: 0,
-          cursor: 'pointer',
-        }}
-        layout
-        animate={{ width: ctaWidth, height: ctaHeight }}
-        transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-      >
-        {state === 'idle' && (
-          <p
-            style={{
-              fontFamily:
-                '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-              fontSize: 10,
-              color: '#767676',
-            }}
-          >
-            Sync
-          </p>
-        )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <motion.button
+          type="button"
+          onClick={() => {
+            if (state === 'idle') {
+              setState('syncing') // State 1 → State 2: press Sync CTA
+            } else if (state === 'complete') {
+              setState('idle') // State 3 → State 1: click to reset
+            }
+          }}
+          className={state === 'complete' ? 'checkbox-frame' : undefined}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: state === 'syncing' ? 'flex-start' : 'center',
+            border: '1px solid #2e2e2e',
+            backgroundColor: 'transparent',
+            padding: state === 'syncing' ? '0 4px' : 0,
+            cursor: 'pointer',
+            overflow: 'hidden',
+          }}
+          layout
+          animate={{ width: ctaWidth, height: ctaHeight }}
+          transition={{ type: 'spring', stiffness: 420, damping: 26 }}
+        >
+          {state === 'idle' && (
+            <p
+              style={{
+                fontFamily:
+                  '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                fontSize: 10,
+                color: '#767676',
+              }}
+            >
+              Sync
+            </p>
+          )}
 
         {state === 'syncing' && (
-          <AgentSyncTrail
-            onBounce={() => {
-              setBounceCount(prev => {
-                const next = prev + 1
-                // 6 bounces = 3 hits per side
-                if (next >= 6) {
-                  setState('complete')
-                }
-                return next
-              })
-            }}
-          />
-        )}
+            <SnakeSyncLoader
+              color="#FC4E09"
+              segmentCount={13}
+              onCycleComplete={() => setState('complete')}
+            />
+          )}
 
         {state === 'complete' && <CheckComplete />}
-      </motion.button>
+        </motion.button>
+      </div>
     </div>
   )
 }

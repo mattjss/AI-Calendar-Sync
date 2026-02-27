@@ -18,3 +18,39 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Checkbox frame shimmer (complete state) */
+.checkbox-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.checkbox-frame::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 60px; /* wider than frame so band fully covers diagonal */
+  height: 60px;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: shimmer-check 3.0s ease-in-out infinite;
+}
+
+@keyframes shimmer-check {
+  0% {
+    transform: translate(-100%, -100%);
+  }
+  45% {
+    transform: translate(250%, 250%);
+  } /* sweep complete */
+  100% {
+    transform: translate(250%, 250%);
+  } /* hold/pause before loop */
+}

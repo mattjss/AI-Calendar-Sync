@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 type Rgb = { r: number; g: number; b: number }
 
-export const LOOP_DURATION_MS = 2700
+export const LOOP_DURATION_MS = 1900
 const PATH_DOT_COUNT = 12
 const PATH_DOT_SPACING = 4.5 // pixels between small track dots, fills 56px button
 const PATH_START_X = 6
