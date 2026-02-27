@@ -1,12 +1,15 @@
 import './App.css'
-import CalendarSync from './components/CalendarSync'
+import CalendarBar from './components/CalendarBar'
 
 function App() {
   return (
     <div className="app-root">
-      <CalendarSync />
+      <div className="frame-600">
+        <CalendarBar />
+      </div>
     </div>
   )
 }
 
 export default App
+

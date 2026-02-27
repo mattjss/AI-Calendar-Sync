@@ -4,8 +4,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
+  background-color: #111111;
   color: #e5e7eb;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text',
     'SF Pro Display', sans-serif;
+}
+
+.frame-600 {
+  width: 600px;
+  height: 600px;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
